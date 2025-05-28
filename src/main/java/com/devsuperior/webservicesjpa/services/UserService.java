@@ -4,6 +4,7 @@ import com.devsuperior.webservicesjpa.entities.User;
 import com.devsuperior.webservicesjpa.repositories.UserRepository;
 import com.devsuperior.webservicesjpa.services.exceptions.DatabaseException;
 import com.devsuperior.webservicesjpa.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -42,13 +43,17 @@ public class UserService {
     }
 
     public User update(Long id, User user) {
-        User entity = userRepository.getReferenceById(id);
+        try {
+            User entity = userRepository.getReferenceById(id);
 
-        entity.setName(user.getName() != null ? user.getName() : entity.getName());
-        entity.setEmail(user.getEmail() != null ? user.getEmail() : entity.getEmail());
-        entity.setPassword(user.getPassword() != null ? user.getPassword() : entity.getPassword());
-        entity.setPhone(user.getPhone() != null ? user.getPhone() : entity.getPhone());
+            entity.setName(user.getName() != null ? user.getName() : entity.getName());
+            entity.setEmail(user.getEmail() != null ? user.getEmail() : entity.getEmail());
+            entity.setPassword(user.getPassword() != null ? user.getPassword() : entity.getPassword());
+            entity.setPhone(user.getPhone() != null ? user.getPhone() : entity.getPhone());
 
-        return userRepository.save(entity);
+            return userRepository.save(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException(id);
+        }
     }
 }
