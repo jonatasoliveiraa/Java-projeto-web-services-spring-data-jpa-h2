@@ -1,6 +1,7 @@
 package com.devsuperior.webservicesjpa.resources.exceptions;
 
 
+import com.devsuperior.webservicesjpa.services.exceptions.DatabaseException;
 import com.devsuperior.webservicesjpa.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,19 @@ public class ResourceExceptionHandler {
         StandardError err = new StandardError(
                 Instant.now(), status.value(), error, message, path
         );
-        
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<StandardError> databaseException(DatabaseException e, HttpServletRequest request) {
+        String error = "Database error";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String message = e.getMessage();
+        String path = request.getRequestURI();
+
+        StandardError err = new StandardError(
+                Instant.now(), status.value(), error, message, path
+        );
         return ResponseEntity.status(status).body(err);
     }
 }
